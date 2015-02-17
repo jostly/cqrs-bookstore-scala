@@ -1,28 +1,17 @@
 package bookstore.productcatalog.resource
 
-import akka.actor.Actor
 import bookstore.productcatalog.api.{BookDto, ProductDto, ProductDtoFactory}
 import bookstore.productcatalog.domain.{Book, Product, ProductRepository}
-import org.json4s.{NoTypeHints, Formats}
-import org.json4s.native.Serialization
 import spray.http.MediaTypes._
 import spray.httpx.Json4sSupport
 import spray.routing.HttpService
 
-class ProductResource(repository: ProductRepository) extends Actor with HttpService with Json4sSupport {
-  implicit def json4sFormats: Formats = Serialization.formats(NoTypeHints)
+trait ProductResource extends HttpService with Json4sSupport {
+  val repository: ProductRepository
 
   val productRoute = {
-    path("products" / Rest) { productId =>
-      get {
-        respondWithMediaType(`application/json`) {
-          complete {
-            repository.getProduct(productId).map(ProductDtoFactory.apply)
-          }
-        }
-      }
-    } ~
-      path("products") {
+    pathPrefix("products") {
+      pathEnd {
         get {
           respondWithMediaType(`application/json`) {
             complete {
@@ -30,31 +19,35 @@ class ProductResource(repository: ProductRepository) extends Actor with HttpServ
             }
           }
         } ~
-          post {
-            decompressRequest() {
-              entity(as[ProductDto]) { productDto =>
-                complete {
+        post {
+          decompressRequest() {
+            entity(as[ProductDto]) { productDto =>
+              complete {
 
-                  val bookDto: BookDto = productDto.book
+                val bookDto: BookDto = productDto.book
 
-                  val product = Product(productDto.productId,
-                    Book(bookDto.bookId, bookDto.isbn, bookDto.title, bookDto.description),
-                    productDto.price,
-                    productDto.publisherContractId)
+                val product = Product(productDto.productId,
+                  Book(bookDto.bookId, bookDto.isbn, bookDto.title, bookDto.description),
+                  productDto.price,
+                  productDto.publisherContractId)
 
-                  repository.save(product)
+                repository.save(product)
 
-                  ""
-                }
+                ""
               }
             }
           }
+        }
+      } ~
+      path(Rest) { productId =>
+        get {
+          respondWithMediaType(`application/json`) {
+            complete {
+              repository.getProduct(productId).map(ProductDtoFactory.apply)
+            }
+          }
+        }
       }
+    }
   }
-
-  def actorRefFactory = context
-
-  def receive = runRoute(productRoute)
-
 }
-

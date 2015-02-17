@@ -10,6 +10,7 @@ libraryDependencies in ThisBuild ++= {
     "io.spray"            %%  "spray-json"    % "1.3.1",
     "org.json4s"          %%  "json4s-native" % "3.2.11",
     "com.typesafe.akka"   %%  "akka-actor"    % akkaV,
+    "com.typesafe"        %   "config"        % "1.2.1",
     "io.spray"            %%  "spray-testkit" % sprayV  % "test",
     "com.typesafe.akka"   %%  "akka-testkit"  % akkaV   % "test",
     "org.scalatest"       %% "scalatest"      % "2.2.4" % "test"
