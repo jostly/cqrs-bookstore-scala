@@ -19,11 +19,9 @@ class ProductApplication(val system: ActorSystem, port: Int = 8080) {
 
   val productRepository = new InMemoryProductRepository
 
-  // create and start our service actor
   val service = system.actorOf(Props(classOf[ProductRoutingActor], productRepository), "product-catalog")
 
   implicit val timeout = Timeout(5.seconds)
-  // start a new HTTP server on port 8080 with our service actor as the handler
   IO(Http)(system) ? Http.Bind(service, interface = "localhost", port = port)
 
 }

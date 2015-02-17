@@ -11,6 +11,8 @@ libraryDependencies in ThisBuild ++= {
     "org.json4s"          %%  "json4s-native" % "3.2.11",
     "com.typesafe.akka"   %%  "akka-actor"    % akkaV,
     "com.typesafe"        %   "config"        % "1.2.1",
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
+    "ch.qos.logback"      % "logback-classic" % "1.1.2",
     "io.spray"            %%  "spray-testkit" % sprayV  % "test",
     "com.typesafe.akka"   %%  "akka-testkit"  % akkaV   % "test",
     "org.scalatest"       %% "scalatest"      % "2.2.4" % "test"
