@@ -1,0 +1,3 @@
+package bookstore
+
+trait GenericId
