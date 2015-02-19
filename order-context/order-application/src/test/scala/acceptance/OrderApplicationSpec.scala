@@ -2,9 +2,10 @@ package acceptance
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
+import bookstore.order.{ProductId, OrderId}
 import bookstore.order.application.OrderApplication
 import bookstore.order.command.api.{CartDto, LineItemDto, PlaceOrderRequest}
-import bookstore.order.query.api.{OrderIdDto, OrderProjectionDto, OrderStatus}
+import bookstore.order.query.orderlist.{OrderLineProjection, OrderProjection}
 import org.json4s.native.Serialization
 import org.json4s.{Formats, NoTypeHints}
 import org.scalatest._
@@ -36,12 +37,17 @@ with BeforeAndAfterAll with BeforeAndAfterEach {
 
   def postRequest(request: PlaceOrderRequest, timeout: Duration = 1.second) = {
     val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
-    Await.result(pipeline(Post("http://localhost:8080/service/order-requests", request)), timeout)
+    Await.result(pipeline(Post("http://localhost:8080/service/order-requests", request)), timeout).status
   }
 
   def getOrders(timeout: Duration = 1.second) = {
-    val pipeline: HttpRequest => Future[List[OrderProjectionDto]] = sendReceive ~> unmarshal[List[OrderProjectionDto]]
+    val pipeline: HttpRequest => Future[List[OrderProjection]] = sendReceive ~> unmarshal[List[OrderProjection]]
     Await.result(pipeline(Get("http://localhost:8080/service/query/orders")), timeout)
+  }
+
+  def getEvents(timeout: Duration = 1.second) = {
+    val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
+    Await.result(pipeline(Get("http://localhost:8080/service/query/events")), timeout).entity.asString
   }
 
 
@@ -69,10 +75,28 @@ with BeforeAndAfterAll with BeforeAndAfterEach {
       val request = validOrderRequest
 
       When("the request is sent")
-      postRequest(request)
+      val status = postRequest(request)
 
-      Then("the service should have only that product listed")
-      getOrders() should be (List(OrderProjectionDto(OrderIdDto("1"), 0, 10000, "customer name", OrderStatus.PLACED)))
+      Then("the service responds with OK")
+      status should be(StatusCodes.OK)
+
+      And("the service should have only that product listed")
+      within(500 millis) {
+        getOrders() should matchPattern { case List(
+        OrderProjection(
+          OrderId("id1"),
+          _,
+          "customer name",
+          10000,
+          List(
+            OrderLineProjection(ProductId("productId1"), "title1", 1, 5000),
+            OrderLineProjection(ProductId("productId2"), "title2", 2, 2500)
+          ),
+          "PLACED"
+        )
+        ) =>
+        }
+      }
     }
   }
 

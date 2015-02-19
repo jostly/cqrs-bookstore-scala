@@ -7,10 +7,12 @@ import akka.pattern.ask
 import bookstore.GenericId
 import bookstore.domain.{AggregateRoot, Repository}
 import bookstore.event.{DomainEvent, DomainEventStore}
-import bookstore.order.application.infrastructure.{InMemoryDomainEventStore, DefaultRepository}
+import bookstore.order.application.infrastructure.{InMemoryOrderProjectionRepository, InMemoryDomainEventStore, DefaultRepository}
 import bookstore.order.command.OrderCommandHandler
 import bookstore.order.command.resource.CommandResource
+import bookstore.order.query.orderlist.OrderListDenormalizer
 import bookstore.order.query.resource.QueryResource
+import bookstore.order.query.service.QueryService
 import org.json4s.{NoTypeHints, Formats}
 import org.json4s.native.Serialization
 import spray.can.Http
@@ -27,14 +29,20 @@ class OrderApplication(val system: ActorSystem, port: Int = 8080) {
 
   val handler = system.actorOf(Props(classOf[OrderCommandHandler], repository))
 
-  val service = system.actorOf(Props(classOf[OrderRoutingActor]), "order")
+  val orderProjectionRepository: InMemoryOrderProjectionRepository = new InMemoryOrderProjectionRepository()
+
+  system.actorOf(Props(classOf[OrderListDenormalizer], orderProjectionRepository))
+
+  val queryService = new QueryService(orderProjectionRepository)
+
+  val service = system.actorOf(Props(classOf[OrderRoutingActor], domainEventStore, queryService), "order")
 
   implicit val timeout = Timeout(5.seconds)
   IO(Http)(system) ? Http.Bind(service, interface = "localhost", port = port)
 
 }
 
-class OrderRoutingActor extends Actor
+class OrderRoutingActor(val domainEventStore: DomainEventStore, val queryService: QueryService) extends Actor
 with HttpService with CommandResource with QueryResource with Json4sSupport {
   implicit def json4sFormats: Formats = Serialization.formats(NoTypeHints)
 
