@@ -1,10 +1,7 @@
 package bookstore.order.command.domain
 
-import java.lang.reflect.Method
-import bookstore.GenericId
 import bookstore.domain.AggregateRoot
-import bookstore.event.DomainEvent
-import bookstore.order.event.OrderPlacedEvent
+import bookstore.order.event.{OrderActivatedEvent, OrderPlacedEvent}
 import bookstore.order.{OrderId, CustomerInformation => CustomerInformationTO, OrderLine => OrderLineTO}
 
 sealed trait OrderStatus
@@ -16,10 +13,12 @@ object OrderStatus {
 }
 
 class Order extends AggregateRoot[OrderId] {
-  private var status: OrderStatus = OrderStatus.Undeclared
+  import OrderStatus._
+
+  private var status: OrderStatus = Undeclared
 
   private def assertHasNotBeenPlaced() =
-    if (status != OrderStatus.Undeclared) throw new IllegalStateException("Order has already been placed")
+    if (status != Undeclared) throw new IllegalStateException("Order has already been placed")
 
   private def assertMoreThanZeroOrderLines(lines: List[OrderLine]) =
     if (lines.isEmpty) throw new IllegalArgumentException("Cannot place an order without any order lines")
@@ -36,11 +35,26 @@ class Order extends AggregateRoot[OrderId] {
     applyChange(OrderPlacedEvent(orderId, nextVersion(), now(), toCustomerInformation(customerInformation), orderLines.map(toOrderLine), totalAmount))
   }
 
+  def activate(): Unit = if (orderIsPlaced) {
+      applyChange(new OrderActivatedEvent(id, nextVersion(), now()))
+    }
+
+  private def orderIsPlaced: Boolean = {
+    return status == Placed
+  }
+
   def handleEvent(event: OrderPlacedEvent) {
     this.id = event.aggregateId
     this.version = event.version
     this.timestamp = event.timestamp
-    this.status = OrderStatus.Placed
+    this.status = Placed
+  }
+
+  def handleEvent(event: OrderActivatedEvent) {
+    this.id = event.aggregateId
+    this.version = event.version
+    this.timestamp = event.timestamp
+    this.status = Activated
   }
 
   override def toString() = {

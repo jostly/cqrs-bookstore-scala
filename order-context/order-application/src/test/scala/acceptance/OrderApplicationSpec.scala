@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import bookstore.order.{ProductId, OrderId}
 import bookstore.order.application.OrderApplication
-import bookstore.order.command.api.{CartDto, LineItemDto, PlaceOrderRequest}
+import bookstore.order.command.api.{OrderActivationRequest, CartDto, LineItemDto, PlaceOrderRequest}
 import bookstore.order.query.orderlist.{OrderLineProjection, OrderProjection}
 import org.json4s.native.Serialization
 import org.json4s.{Formats, NoTypeHints}
@@ -35,9 +35,14 @@ with BeforeAndAfterAll with BeforeAndAfterEach {
   override def beforeEach {
   }
 
-  def postRequest(request: PlaceOrderRequest, timeout: Duration = 1.second) = {
+  def placeOrder(request: PlaceOrderRequest, timeout: Duration = 1.second) = {
     val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
     Await.result(pipeline(Post("http://localhost:8080/service/order-requests", request)), timeout).status
+  }
+
+  def activateOrder(request: OrderActivationRequest, timeout: Duration = 1.second) = {
+    val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
+    Await.result(pipeline(Post("http://localhost:8080/service/order-requests/activations", request)), timeout).status
   }
 
   def getOrders(timeout: Duration = 1.second) = {
@@ -75,12 +80,12 @@ with BeforeAndAfterAll with BeforeAndAfterEach {
       val request = validOrderRequest
 
       When("the request is sent")
-      val status = postRequest(request)
+      val status = placeOrder(request)
 
       Then("the service responds with OK")
-      status should be(StatusCodes.OK)
+      status should be (StatusCodes.OK)
 
-      And("the service should have only that product listed")
+      And("the service should have that product listed")
       within(500 millis) {
         getOrders() should matchPattern { case List(
         OrderProjection(
@@ -93,6 +98,35 @@ with BeforeAndAfterAll with BeforeAndAfterEach {
             OrderLineProjection(ProductId("productId2"), "title2", 2, 2500)
           ),
           "PLACED"
+        )
+        ) =>
+        }
+      }
+    }
+
+    scenario("Activating an order") {
+      Given("a placed order")
+      placeOrder(validOrderRequest) should be (StatusCodes.OK)
+
+      When("the order is activated")
+      val status = activateOrder(OrderActivationRequest("id1"))
+
+      Then("the service responds with OK")
+      status should be (StatusCodes.OK)
+
+      And("the service should have that product listed as activated")
+      within(500 millis) {
+        getOrders() should matchPattern { case List(
+        OrderProjection(
+        OrderId("id1"),
+        _,
+        "customer name",
+        10000,
+        List(
+        OrderLineProjection(ProductId("productId1"), "title1", 1, 5000),
+        OrderLineProjection(ProductId("productId2"), "title2", 2, 2500)
+        ),
+        "ACTIVATED"
         )
         ) =>
         }
