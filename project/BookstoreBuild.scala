@@ -4,6 +4,9 @@ object BookstoreBuild extends Build {
   lazy val root = Project(id = "cqrs-bookstore",
     base = file(".")) aggregate (productCatalogContext, orderContext)
 
+  lazy val acceptance = Project(id = "acceptance",
+    base = file("acceptance")) dependsOn (productCatalogContext, orderContext)
+
   lazy val cqrslib = Project(id = "cqrs-lib",
     base = file("cqrs-lib"))
 

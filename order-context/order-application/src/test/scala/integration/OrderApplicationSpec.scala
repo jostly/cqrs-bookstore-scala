@@ -1,4 +1,4 @@
-package acceptance
+package integration
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}

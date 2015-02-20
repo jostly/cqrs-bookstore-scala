@@ -23,6 +23,7 @@ class OrderListDenormalizer(repository: OrderProjectionRepository) extends Actor
     repository.getById(event.aggregateId) match {
       case Some(projection) =>
         repository.save(projection.copy(status = "ACTIVATED"))
+      case None =>
   }
 
   def handleEvent(event: OrderPlacedEvent): Unit = {

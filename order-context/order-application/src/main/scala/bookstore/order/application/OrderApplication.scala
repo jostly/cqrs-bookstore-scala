@@ -40,6 +40,7 @@ class OrderApplication(val system: ActorSystem, port: Int = 8080) {
   implicit val timeout = Timeout(5.seconds)
   IO(Http)(system) ? Http.Bind(service, interface = "localhost", port = port)
 
+  def reset(): Unit = {}
 }
 
 class OrderRoutingActor(val domainEventStore: DomainEventStore, val queryService: QueryService) extends Actor

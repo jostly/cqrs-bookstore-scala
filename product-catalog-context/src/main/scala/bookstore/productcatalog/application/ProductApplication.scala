@@ -24,6 +24,7 @@ class ProductApplication(val system: ActorSystem, port: Int = 8080) {
   implicit val timeout = Timeout(5.seconds)
   IO(Http)(system) ? Http.Bind(service, interface = "localhost", port = port)
 
+  def reset(): Unit = productRepository.clear
 }
 
 class ProductRoutingActor(override val repository: ProductRepository) extends Actor
