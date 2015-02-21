@@ -15,6 +15,9 @@ trait CommandResource extends HttpService with Json4sSupport with LazyLogging { 
         post {
           decompressRequest() {
             entity(as[PlaceOrderRequest]) { request =>
+
+              request.validate()
+
               logger.info("Placing customer order: " + request)
 
               val command = CommandFactory.toCommand(request)
