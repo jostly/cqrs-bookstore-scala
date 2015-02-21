@@ -1,6 +1,6 @@
 package acceptance.orders
 
-import bookstore.order.query.orderlist.{OrderLineProjection, OrderProjection}
+import bookstore.order.query.orderlist.OrderLineProjection
 import bookstore.order.{OrderId, ProductId}
 import fixture.{AbstractAcceptanceTest, SomeOrders}
 import spray.http.StatusCodes
@@ -22,20 +22,16 @@ class PlaceOrderSpec extends AbstractAcceptanceTest with SomeOrders {
 
       And("the service should have that product listed")
       within(1.second) {
-        getOrders() should matchPattern { case List(
-        OrderProjection(
-          OrderId(oid),
-          _,
-          "customer name",
-          10000,
-          List(
-            OrderLineProjection(ProductId(pid1), "title1", 1, 5000),
-            OrderLineProjection(ProductId(pid2), "title2", 2, 2500)
-          ),
-          "PLACED"
+        val orders = getOrders()
+        orders should have length 1
+
+        orders.head should have (
+          'orderId (OrderId(orderId)),
+          'customerName ("customer name"),
+          'orderAmount (10000),
+          'orderLines (List(OrderLineProjection(ProductId(productId1), "title1", 1, 5000), OrderLineProjection(ProductId(productId2), "title2", 2, 2500))),
+          'status ("PLACED")
         )
-        ) if oid == orderId && pid1 == productId1 && pid2 == productId2 =>
-        }
       }
     }
   }
