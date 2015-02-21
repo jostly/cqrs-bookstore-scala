@@ -4,6 +4,7 @@ import akka.actor.{Actor, ActorSystem, Props}
 import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout
+import bookstore.infrastructure.BindActor
 import bookstore.productcatalog.domain.ProductRepository
 import bookstore.productcatalog.infrastructure.InMemoryProductRepository
 import bookstore.productcatalog.resource.ProductResource
@@ -13,6 +14,7 @@ import spray.can.Http
 import spray.httpx.Json4sSupport
 import spray.routing.HttpService
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 
 class ProductApplication(val system: ActorSystem, port: Int = 8080) {
@@ -21,10 +23,19 @@ class ProductApplication(val system: ActorSystem, port: Int = 8080) {
 
   val service = system.actorOf(Props(classOf[ProductRoutingActor], productRepository), "product-catalog")
 
-  implicit val timeout = Timeout(5.seconds)
-  IO(Http)(system) ? Http.Bind(service, interface = "localhost", port = port)
+  val binder = system.actorOf(Props(classOf[BindActor]))
 
-  def reset(): Unit = productRepository.clear
+  implicit val timeout = Timeout(5.seconds)
+
+  def start() = {
+    Await.result(binder ? Http.Bind(service, interface = "localhost", port = port), 5.seconds)
+  }
+
+  def reset(): Unit = {}
+
+  def close(): Unit = {
+    Await.result(binder ? Http.Unbind, 5.seconds)
+  }
 }
 
 class ProductRoutingActor(override val repository: ProductRepository) extends Actor

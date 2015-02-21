@@ -30,7 +30,14 @@ with BeforeAndAfterAll with BeforeAndAfterEach {
   implicit def json4sFormats: Formats = Serialization.formats(NoTypeHints)
 
   override def afterAll {
+    orderApplication.close()
+    productApplication.close()
     TestKit.shutdownActorSystem(system)
+  }
+
+  override def beforeAll {
+    orderApplication.start()
+    productApplication.start()
   }
 
   val orderApplication = new OrderApplication(system, 8090)
