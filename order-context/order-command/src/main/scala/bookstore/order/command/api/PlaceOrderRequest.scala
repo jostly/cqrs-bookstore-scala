@@ -1,19 +1,16 @@
 package bookstore.order.command.api
 
-import bookstore.validation.{PropertyPath, Validatable}
+import bookstore.validation._
 
 case class PlaceOrderRequest(orderId: String,
                              customerName: String,
                              customerEmail: String,
                              customerAddress: String,
-                             cart: CartDto) extends Validatable {
+                             cart: CartDto) {
 
-  override def validate(implicit path: PropertyPath = PropertyPath("")) = {
-    requireUUID("orderId")
-    requireNonEmptyString("customerName")
-    requireNonEmptyString("customerEmail")
-    requireNonEmptyString("customerAddress")
-    requireValid("cart")
-  }
+  require(uuid(orderId))
+  require(nonEmpty(customerName))
+  require(nonEmpty(customerEmail))
+  require(nonEmpty(customerAddress))
 }
 

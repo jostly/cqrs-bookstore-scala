@@ -1,3 +1,7 @@
 package bookstore.order.command.api
 
-case class OrderActivationRequest(orderId: String)
+import bookstore.validation._
+
+case class OrderActivationRequest(orderId: String) {
+  require(uuid(orderId))
+}
