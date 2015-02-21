@@ -23,7 +23,7 @@ class CreateProductsSpec extends AbstractAcceptanceTest with SomeProducts {
     }
 
     scenario("Updating products") {
-      Given(s"a stored product ith id $productId2")
+      Given(s"a stored product with id $productId2")
       createProduct(product1.copy(productId = productId2)).status should be (StatusCodes.OK)
 
       When(s"a different product with id $productId2 is posted")

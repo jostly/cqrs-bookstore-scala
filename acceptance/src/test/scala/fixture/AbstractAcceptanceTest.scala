@@ -2,7 +2,11 @@ package fixture
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
+import bookstore.GenericId
+import bookstore.event.DomainEvent
 import bookstore.order.application.OrderApplication
+import bookstore.order.command.api.{OrderActivationRequest, PlaceOrderRequest}
+import bookstore.order.query.orderlist.OrderProjection
 import bookstore.productcatalog.api.ProductDto
 import bookstore.productcatalog.application.ProductApplication
 import org.json4s.native.Serialization
@@ -54,6 +58,21 @@ with BeforeAndAfterAll with BeforeAndAfterEach {
   def createProduct(product: ProductDto) = post(productContextUrl, product)
 
   def getProduct(id: String): Option[ProductDto] = get(productContextUrl + "/" + id, unmarshal[Option[ProductDto]])
+
+  def getProducts(): List[ProductDto] = get(productContextUrl, unmarshal[List[ProductDto]])
+
+  def orderCommandUrl: String = host + ":8090/service/order-requests"
+  
+  def placeOrder(request: PlaceOrderRequest) = post(orderCommandUrl, request)
+
+  def activateOrder(request: OrderActivationRequest) = post(orderCommandUrl + "/activations", request)
+
+  def orderQueryUrl: String = host + ":8090/service/query"
+
+  def getOrders() = get(orderQueryUrl + "/orders", unmarshal[List[OrderProjection]])
+
+  def getEvents() = get(orderQueryUrl + "/events", unmarshal[List[(DomainEvent[GenericId], String)]])
+
 
 }
 
