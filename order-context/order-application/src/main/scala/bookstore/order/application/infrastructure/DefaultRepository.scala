@@ -27,7 +27,7 @@ class DefaultRepository(eventBus: EventStream, domainEventStore: DomainEventStor
     }
     catch {
       case iae: IllegalArgumentException =>
-        throw new IllegalArgumentException(s"Aggregate of type ${aggregateType.getSimpleName} does not exist, ID: $id")
+        throw new IllegalArgumentException(s"Aggregate of type ${aggregateType.getSimpleName} does not exist, ID: $id", iae)
     }
   }
 }
