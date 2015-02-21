@@ -17,7 +17,6 @@ case class BookDto(bookId: String, isbn: String, title: String, description: Str
   require(uuid(bookId))
   require(nonEmpty(isbn))
   require(nonEmpty(title))
-  require(nonEmpty(description))
 }
 
 object ProductDtoFactory {

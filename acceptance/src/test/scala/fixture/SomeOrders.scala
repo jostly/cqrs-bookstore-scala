@@ -16,8 +16,8 @@ trait SomeOrders extends SomeProducts { self: UUIDGenerator =>
       10000,
       3,
       List(
-        LineItemDto(productId1, "title1", 5000, 1, 5000),
-        LineItemDto(productId2, "title2", 2500, 2, 5000)
+        LineItemDto(productIds(0), "title1", 5000, 1, 5000),
+        LineItemDto(productIds(1), "title2", 2500, 2, 5000)
       )
     )
   )

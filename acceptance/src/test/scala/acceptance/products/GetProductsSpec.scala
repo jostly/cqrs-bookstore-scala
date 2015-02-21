@@ -9,14 +9,14 @@ class GetProductsSpec extends AbstractAcceptanceTest with SomeProducts {
 
   feature("Getting products") {
     scenario("Getting existing product") {
-      Given(s"a stored product with id $productId1")
-      createProduct(product1).status should be (StatusCodes.OK)
+      Given(s"a stored product with id ${productIds(0)}")
+      createProduct(products(0)).status should be (StatusCodes.OK)
 
-      When(s"the product with id $productId1 is fetched")
-      val productOption = getProduct(productId1)
+      When(s"the product with id ${productIds(0)} is fetched")
+      val productOption = getProduct(productIds(0))
 
       Then("it should be equal to the one posted")
-      productOption should be (Some(product1))
+      productOption should be (Some(products(0)))
     }
 
     scenario("Getting a non-existing product") {
@@ -38,15 +38,15 @@ class GetProductsSpec extends AbstractAcceptanceTest with SomeProducts {
 
     scenario("Getting all products") {
       Given("some stored products")
-      createProduct(product1).status should be (StatusCodes.OK)
-      createProduct(product2).status should be (StatusCodes.OK)
-      createProduct(product3).status should be (StatusCodes.OK)
+      createProduct(products(0)).status should be (StatusCodes.OK)
+      createProduct(products(1)).status should be (StatusCodes.OK)
+      createProduct(products(2)).status should be (StatusCodes.OK)
 
       When("all products are fetched")
       val allProducts = getProducts()
 
       Then("the products should be returned sorted by book title")
-      allProducts should be (List(product2, product1, product3))
+      allProducts should be (List(products(1), products(0), products(2)))
     }
   }
 

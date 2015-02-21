@@ -29,7 +29,7 @@ class ActivateOrderSpec extends AbstractAcceptanceTest with SomeOrders {
         'orderId (OrderId(orderId)),
         'customerName ("customer name"),
         'orderAmount (10000),
-        'orderLines (List(OrderLineProjection(ProductId(productId1), "title1", 1, 5000), OrderLineProjection(ProductId(productId2), "title2", 2, 2500))),
+        'orderLines (List(OrderLineProjection(ProductId(productIds(0)), "title1", 1, 5000), OrderLineProjection(ProductId(productIds(1)), "title2", 2, 2500))),
         'status ("ACTIVATED")
       )
     }
