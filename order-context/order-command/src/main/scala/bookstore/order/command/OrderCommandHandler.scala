@@ -2,7 +2,6 @@ package bookstore.order.command
 
 import akka.actor.Actor
 import bookstore.domain.Repository
-import bookstore.eventbus.Command
 import bookstore.order.OrderId
 import bookstore.order.command.domain.Order
 import com.typesafe.scalalogging.LazyLogging

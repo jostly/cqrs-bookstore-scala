@@ -15,16 +15,15 @@ trait CommandResource extends HttpService with Json4sSupport with LazyLogging { 
         post {
           decompressRequest() {
             entity(as[PlaceOrderRequest]) { request =>
+              complete {
+                logger.info(s"Placing order: $request")
 
-              logger.info("Placing customer order: " + request)
+                val command = CommandFactory.toCommand(request)
 
-              val command = CommandFactory.toCommand(request)
+                context.system.eventStream.publish(command)
 
-              logger.debug("Publishing command: " + command)
-
-              context.system.eventStream.publish(command)
-
-              complete("")
+                request.orderId
+              }
             }
           }
         }
@@ -33,15 +32,15 @@ trait CommandResource extends HttpService with Json4sSupport with LazyLogging { 
         post {
           decompressRequest() {
             entity(as[OrderActivationRequest]) { request =>
-              logger.info("Activating order: " + request)
+              complete {
+                logger.info(s"Activating order: $request")
 
-              val command = CommandFactory.toCommand(request)
+                val command = CommandFactory.toCommand(request)
 
-              logger.debug("Publishing command: " + command)
+                context.system.eventStream.publish(command)
 
-              context.system.eventStream.publish(command)
-
-              complete("")
+                request.orderId
+              }
             }
           }
         }

@@ -43,11 +43,6 @@ with BeforeAndAfterAll with BeforeAndAfterEach {
   val orderApplication = new OrderApplication(system, 8090)
   val productApplication = new ProductApplication(system, 8070)
 
-  def reset() {
-    orderApplication.reset()
-    productApplication.reset()
-  }
-
   def post(url: String, payload: AnyRef, timeout: Duration = 1.second): HttpResponse = {
     val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
     Await.result(pipeline(Post(url, payload)), timeout)

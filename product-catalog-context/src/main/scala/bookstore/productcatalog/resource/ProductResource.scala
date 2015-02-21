@@ -33,7 +33,7 @@ trait ProductResource extends HttpService with Json4sSupport {
 
                 repository.save(product)
 
-                ""
+                productDto.productId
               }
             }
           }

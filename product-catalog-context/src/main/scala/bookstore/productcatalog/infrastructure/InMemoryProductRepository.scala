@@ -16,8 +16,4 @@ class InMemoryProductRepository extends ProductRepository {
   override def getProduct(productId: String): Option[Product] =
     products.get(productId)
 
-  def clear = this.synchronized {
-    products = Map.empty
-  }
-
 }

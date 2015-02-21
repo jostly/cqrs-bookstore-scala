@@ -31,8 +31,6 @@ class ProductApplication(val system: ActorSystem, port: Int = 8080) {
     Await.result(binder ? Http.Bind(service, interface = "localhost", port = port), 5.seconds)
   }
 
-  def reset(): Unit = {}
-
   def close(): Unit = {
     Await.result(binder ? Http.Unbind, 5.seconds)
   }

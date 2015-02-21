@@ -5,6 +5,7 @@ import bookstore.order.OrderId
 import bookstore.order.query.orderlist.OrderProjection
 import bookstore.order.query.service.QueryService
 import com.typesafe.scalalogging.LazyLogging
+import spray.http.MediaTypes._
 import spray.httpx.Json4sSupport
 import spray.routing.HttpService
 
@@ -18,18 +19,22 @@ trait QueryResource extends HttpService with Json4sSupport with LazyLogging {
       pathPrefix("orders") {
         pathEnd {
           get {
-            complete {
-              logger.info("Fetching orders")
-              queryService.getOrders()
+            respondWithMediaType(`application/json`) {
+              complete {
+                logger.info("Fetching orders")
+                queryService.getOrders()
+              }
             }
           }
         }
       } ~
       path("events") {
         get {
-          complete {
-            logger.info("Fetching events")
-            domainEventStore.getAllEvents.map(event => Array(event.getClass.getSimpleName, event))
+          respondWithMediaType(`application/json`) {
+            complete {
+              logger.info("Fetching events")
+              domainEventStore.getAllEvents.map(event => Array(event.getClass.getSimpleName, event))
+            }
           }
         }
       }
