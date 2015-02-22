@@ -1,6 +1,7 @@
 package bookstore.order.command
 
 import akka.actor.Actor
+import bookstore.command.Command
 import bookstore.domain.Repository
 import bookstore.order.OrderId
 import bookstore.order.command.domain.Order

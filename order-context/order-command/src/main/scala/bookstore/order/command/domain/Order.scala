@@ -2,18 +2,20 @@ package bookstore.order.command.domain
 
 import bookstore.domain.AggregateRoot
 import bookstore.order.event.{OrderActivatedEvent, OrderPlacedEvent}
-import bookstore.order.{OrderId, CustomerInformation => CustomerInformationTO, OrderLine => OrderLineTO}
+import bookstore.order.{CustomerInformation => CustomerInformationTO, OrderLine => OrderLineTO, ProductId, OrderId}
+import OrderStatus._
 
 sealed trait OrderStatus
-
 object OrderStatus {
   case object Undeclared extends OrderStatus
   case object Placed extends OrderStatus
   case object Activated extends OrderStatus
 }
 
+case class CustomerInformation(customerName: String, email: String, address: String)
+case class OrderLine(productId: ProductId, title: String, quantity: Int, unitPrice: Long)
+
 class Order extends AggregateRoot[OrderId] {
-  import OrderStatus._
 
   private var status: OrderStatus = Undeclared
 
@@ -23,25 +25,23 @@ class Order extends AggregateRoot[OrderId] {
   private def assertMoreThanZeroOrderLines(lines: List[OrderLine]) =
     if (lines.isEmpty) throw new IllegalArgumentException("Cannot place an order without any order lines")
 
-  def toCustomerInformation(ci: CustomerInformation): CustomerInformationTO =
+  def toCustomerInformationTO(ci: CustomerInformation): CustomerInformationTO =
     CustomerInformationTO(ci.customerName, ci.email, ci.address)
 
-  def toOrderLine(line: OrderLine): OrderLineTO =
+  def toOrderLineTO(line: OrderLine): OrderLineTO =
     OrderLineTO(line.productId, line.title, line.quantity, line.unitPrice)
 
   def place(orderId: OrderId, customerInformation: CustomerInformation, orderLines: List[OrderLine], totalAmount: Long) {
     assertHasNotBeenPlaced()
     assertMoreThanZeroOrderLines(orderLines)
-    applyChange(OrderPlacedEvent(orderId, nextVersion(), now(), toCustomerInformation(customerInformation), orderLines.map(toOrderLine), totalAmount))
+    applyChange(OrderPlacedEvent(orderId, nextVersion(), now(), toCustomerInformationTO(customerInformation), orderLines.map(toOrderLineTO), totalAmount))
   }
 
   def activate(): Unit = if (orderIsPlaced) {
-      applyChange(new OrderActivatedEvent(id, nextVersion(), now()))
-    }
-
-  private def orderIsPlaced: Boolean = {
-    return status == Placed
+    applyChange(new OrderActivatedEvent(id, nextVersion(), now()))
   }
+
+  private def orderIsPlaced: Boolean = status == Placed
 
   def handleEvent(event: OrderPlacedEvent) {
     this.id = event.aggregateId
@@ -57,7 +57,7 @@ class Order extends AggregateRoot[OrderId] {
     this.status = Activated
   }
 
-  override def toString() = {
+  override def toString = {
     s"Order($id, $version, $timestamp, $status)"
   }
 }

@@ -32,7 +32,7 @@ class OrderApplication(val system: ActorSystem, port: Int = 8080) extends LazyLo
 
   val handler = system.actorOf(Props(classOf[OrderCommandHandler], repository))
 
-  val orderProjectionRepository: InMemoryOrderProjectionRepository = new InMemoryOrderProjectionRepository()
+  val orderProjectionRepository = new InMemoryOrderProjectionRepository()
 
   system.actorOf(Props(classOf[OrderListDenormalizer], orderProjectionRepository))
 
