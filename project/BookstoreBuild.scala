@@ -17,13 +17,19 @@ object BookstoreBuild extends Build {
 		base = file("order-context/eventbus-contract")) dependsOn (cqrslib)
 
 	lazy val orderApplication = Project(id = "order-application",
-		base = file("order-context/order-application")) aggregate (orderCommand, orderQuery)
+		base = file("order-context/order-application")) aggregate (orderCommand, orderQuery, publisherContractCommand, sagas)
 
 	lazy val orderCommand = Project(id = "order-command",
 		base = file("order-context/order-command")) dependsOn (eventbusContract)
 
 	lazy val orderQuery = Project(id = "order-query",
 		base = file("order-context/order-query")) dependsOn (eventbusContract)
+
+  lazy val publisherContractCommand = Project(id = "publisher-contract-command",
+    base = file("order-context/publisher-contract-command")) dependsOn (eventbusContract)
+
+  lazy val sagas = Project(id = "sagas",
+    base = file("order-context/sagas")) dependsOn (publisherContractCommand, orderCommand)
 
   lazy val orderContext = Project(id = "order-context",
     base = file("order-context")) aggregate (orderApplication)
