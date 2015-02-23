@@ -1,9 +1,9 @@
 package acceptance.publishercontract
 
 import bookstore.ordercontext.api.RegisterPublisherContractRequest
+import bookstore.ordercontext.publishercontract.PublisherContractId
 import bookstore.ordercontext.publishercontract.event.PublisherContractRegisteredEvent
 import fixture.{AbstractAcceptanceTest, SomeOrders}
-import bookstore.ordercontext.publishercontract.PublisherContractId
 import spray.http.StatusCodes
 
 class RegisterContractSpec extends AbstractAcceptanceTest with SomeOrders {
@@ -22,7 +22,8 @@ class RegisterContractSpec extends AbstractAcceptanceTest with SomeOrders {
       status should be (StatusCodes.OK)
 
       And("the events contain a PublisherContractRegisteredEvent")
-      val events = getEvents().map(_._1).filter(_.isInstanceOf[PublisherContractRegisteredEvent])
+      val events = getEvents[PublisherContractRegisteredEvent]
+
       events should have length (1)
       events.head should have (
         'aggregateId (PublisherContractId(contractId)),

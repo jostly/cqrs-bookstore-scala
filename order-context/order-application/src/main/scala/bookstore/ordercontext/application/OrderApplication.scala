@@ -10,6 +10,7 @@ import bookstore.event.{DomainEvent, DomainEventStore}
 import bookstore.infrastructure.BindActor
 import bookstore.ordercontext.application.infrastructure.{InMemoryOrderProjectionRepository, InMemoryDomainEventStore, DefaultRepository}
 import bookstore.ordercontext.order.command.OrderCommandHandler
+import bookstore.ordercontext.publishercontract.command.PublisherContractCommandHandler
 import bookstore.ordercontext.resource.OrderCommandResource
 import bookstore.ordercontext.query.orderlist.OrderListDenormalizer
 import bookstore.ordercontext.resource.QueryResource
@@ -31,7 +32,9 @@ class OrderApplication(val system: ActorSystem, port: Int = 8080) extends LazyLo
 
   val repository = new DefaultRepository(system.eventStream, domainEventStore)
 
-  val handler = system.actorOf(Props(classOf[OrderCommandHandler], repository))
+  val orderHandler = system.actorOf(Props(classOf[OrderCommandHandler], repository))
+
+  val contractHandler = system.actorOf(Props(classOf[PublisherContractCommandHandler], repository))
 
   val orderProjectionRepository = new InMemoryOrderProjectionRepository()
 
