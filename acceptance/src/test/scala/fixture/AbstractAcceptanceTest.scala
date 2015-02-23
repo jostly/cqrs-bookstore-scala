@@ -4,11 +4,12 @@ import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import bookstore.GenericId
 import bookstore.event.DomainEvent
-import bookstore.order.application.OrderApplication
-import bookstore.order.command.api.{OrderActivationRequest, PlaceOrderRequest}
-import bookstore.order.query.orderlist.OrderProjection
+import bookstore.ordercontext.application.OrderApplication
+import bookstore.ordercontext.api.{OrderActivationRequest, PlaceOrderRequest}
+import bookstore.ordercontext.query.orderlist.OrderProjection
 import bookstore.productcatalog.api.ProductDto
 import bookstore.productcatalog.application.ProductApplication
+import bookstore.ordercontext.api.RegisterPublisherContractRequest
 import org.json4s.native.Serialization
 import org.json4s.{Formats, NoTypeHints}
 import org.scalatest._
@@ -75,6 +76,9 @@ with BeforeAndAfterAll with BeforeAndAfterEach {
 
   def getEvents() = get(orderQueryUrl + "/events", unmarshal[List[(DomainEvent[GenericId], String)]])
 
+  def contractCommandUrl: String = host + ":8090/service/publisher-contract-requests"
+
+  def registerContract(request: RegisterPublisherContractRequest) = post(contractCommandUrl, request)
 
 }
 

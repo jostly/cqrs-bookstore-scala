@@ -1,8 +1,8 @@
 package acceptance.orders
 
-import bookstore.order.command.api.OrderActivationRequest
-import bookstore.order.{ProductId, OrderId}
-import bookstore.order.query.orderlist.{OrderLineProjection, OrderProjection}
+import bookstore.ordercontext.api.OrderActivationRequest
+import bookstore.ordercontext.order.{OrderId, ProductId}
+import bookstore.ordercontext.query.orderlist.OrderLineProjection
 import fixture.{AbstractAcceptanceTest, SomeOrders}
 import spray.http.StatusCodes
 

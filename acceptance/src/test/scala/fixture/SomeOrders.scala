@@ -1,6 +1,6 @@
 package fixture
 
-import bookstore.order.command.api.{LineItemDto, CartDto, PlaceOrderRequest}
+import bookstore.ordercontext.api.{LineItemDto, CartDto, PlaceOrderRequest}
 
 trait SomeOrders extends SomeProducts { self: UUIDGenerator =>
   val orderId = nextId()
