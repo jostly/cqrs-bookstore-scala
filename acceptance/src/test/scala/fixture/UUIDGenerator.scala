@@ -9,4 +9,6 @@ trait UUIDGenerator {
     idCounter += 1
     new UUID(0, idCounter).toString
   }
+
+  def randomId(): String = UUID.randomUUID().toString
 }

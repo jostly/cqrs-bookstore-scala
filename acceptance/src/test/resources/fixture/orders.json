@@ -1,0 +1,29 @@
+[
+    {
+        "orderId": "09bd7ba4-860c-4bdb-960e-08bcc0ca660a",
+        "customerName": "customer name",
+        "customerEmail": "customer email",
+        "customerAddress": "customer address",
+        "cart": {
+            "cartId": "b662562c-ceb1-48e7-a0cd-c2d9d548d067",
+            "totalPrice": 10000,
+            "totalQuantity": 3,
+            "lineItems": [
+                {
+                    "productId": "3edd5901-bdfd-494c-9354-6fd62df28edb",
+                    "title": "Domain-Driven Design",
+                    "price": 5000,
+                    "quantity": 1,
+                    "totalPrice": 5000
+                },
+                {
+                    "productId": "da54c88d-9f29-4f14-acb8-4b9fbd40af0a",
+                    "title": "title2",
+                    "price": 2500,
+                    "quantity": 2,
+                    "totalPrice": 5000
+                }
+            ]
+        }
+    }
+]

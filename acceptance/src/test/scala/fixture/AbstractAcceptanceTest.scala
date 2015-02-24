@@ -4,11 +4,10 @@ import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import bookstore.ordercontext.api.{OrderActivationRequest, PlaceOrderRequest, RegisterPublisherContractRequest}
 import bookstore.ordercontext.application.OrderApplication
-import bookstore.ordercontext.publishercontract.event.PublisherContractRegisteredEvent
 import bookstore.ordercontext.query.orderlist.OrderProjection
 import bookstore.productcatalog.api.ProductDto
 import bookstore.productcatalog.application.ProductApplication
-import org.json4s.JsonAST.{JString, JArray}
+import org.json4s.JsonAST.{JArray, JString}
 import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization._
@@ -20,7 +19,6 @@ import spray.httpx.Json4sSupport
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
-import scala.reflect.ClassTag
 
 abstract class AbstractAcceptanceTest extends TestKit(ActorSystem("acceptance"))
 with UUIDGenerator
