@@ -86,11 +86,8 @@ with BeforeAndAfterAll with BeforeAndAfterEach {
     val JArray(events) = getEventsAsJson()
     val className = manifest.runtimeClass.getSimpleName
 
-    events.filter {
-      case JArray(List(JString(c), _)) if c == className => true
-      case _ => false
-    }.map {
-      case JArray(List(_, o)) => read[T](compact(render(o)))
+    events.collect {
+      case JArray(List(JString(c), o)) if c == className => read[T](compact(render(o)))
     }
   }
 

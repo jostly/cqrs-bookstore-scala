@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorSystem, Props}
 import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout
-import bookstore.infrastructure.BindActor
+import bookstore.infrastructure.{CORSSupport, BindActor}
 import bookstore.productcatalog.domain.ProductRepository
 import bookstore.productcatalog.infrastructure.InMemoryProductRepository
 import bookstore.productcatalog.resource.ProductResource
@@ -37,10 +37,14 @@ class ProductApplication(val system: ActorSystem, port: Int = 8080) {
 }
 
 class ProductRoutingActor(override val repository: ProductRepository) extends Actor
-with HttpService with ProductResource with Json4sSupport {
+with HttpService with ProductResource with Json4sSupport with CORSSupport {
   implicit def json4sFormats: Formats = Serialization.formats(NoTypeHints)
 
   def actorRefFactory = context
 
-  def receive = runRoute(productRoute)
+  def receive = runRoute(
+    respondWithCORS("http://localhost") {
+      productRoute
+    }
+  )
 }

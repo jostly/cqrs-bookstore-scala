@@ -7,7 +7,7 @@ import akka.pattern.ask
 import bookstore.GenericId
 import bookstore.domain.{AggregateRoot, Repository}
 import bookstore.event.{DomainEvent, DomainEventStore}
-import bookstore.infrastructure.BindActor
+import bookstore.infrastructure.{CORSSupport, BindActor}
 import bookstore.ordercontext.application.infrastructure.{InMemoryOrderProjectionRepository, InMemoryDomainEventStore, DefaultRepository}
 import bookstore.ordercontext.order.command.OrderCommandHandler
 import bookstore.ordercontext.publishercontract.command.PublisherContractCommandHandler
@@ -57,15 +57,18 @@ class OrderApplication(val system: ActorSystem, port: Int = 8080) extends LazyLo
   }
 }
 
-class OrderRoutingActor(val domainEventStore: DomainEventStore, val queryService: QueryService) extends Actor
-with HttpService with OrderCommandResource with QueryResource with ContractCommandResource with Json4sSupport {
+class OrderRoutingActor(val domainEventStore: DomainEventStore, val queryService: QueryService)
+  extends Actor with HttpService with OrderCommandResource with QueryResource
+  with ContractCommandResource with Json4sSupport with CORSSupport {
   implicit def json4sFormats: Formats = Serialization.formats(NoTypeHints)
 
   def actorRefFactory = context
 
   def receive = runRoute(
     pathPrefix("service") {
-      orderCommandRoute ~ queryRoute ~ contractCommandRoute
+      respondWithCORS("http://localhost") {
+        orderCommandRoute ~ queryRoute ~ contractCommandRoute
+      }
     }
   )
 }
