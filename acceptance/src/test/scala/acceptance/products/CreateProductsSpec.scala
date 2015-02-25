@@ -10,7 +10,7 @@ class CreateProductsSpec extends AbstractAcceptanceTest with SomeProducts {
       Given(s"no stored products with id ${productIds(0)}")
 
       When(s"a product with id ${productIds(0)} is posted")
-      val status = createProduct(products(0)).status
+      val status = createProduct(products(0)).head.status
 
       Then("the service responds with OK")
       status should be (StatusCodes.OK)
@@ -24,10 +24,10 @@ class CreateProductsSpec extends AbstractAcceptanceTest with SomeProducts {
 
     scenario("Updating products") {
       Given(s"a stored product with id ${productIds(1)}")
-      createProduct(products(0).copy(productId = productIds(1))).status should be (StatusCodes.OK)
+      createProduct(products(0).copy(productId = productIds(1))).head.status should be (StatusCodes.OK)
 
       When(s"a different product with id ${productIds(1)} is posted")
-      val status = createProduct(products(1)).status
+      val status = createProduct(products(1)).head.status
 
       Then("the service responds with OK")
       status should be (StatusCodes.OK)

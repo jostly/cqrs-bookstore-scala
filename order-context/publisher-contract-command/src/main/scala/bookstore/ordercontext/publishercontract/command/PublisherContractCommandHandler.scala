@@ -16,6 +16,11 @@ class PublisherContractCommandHandler(repository: Repository) extends Actor with
       val contract = new PublisherContract()
       contract.register(id, name, fee, limit)
       repository.save[PublisherContractId, PublisherContract](contract)
+    case RegisterPurchaseCommand(contractId, productId, unitPrice, quantity) =>
+      logger.info(s"Registered purchase on $contractId")
+      val contract = repository.load(contractId, classOf[PublisherContract])
+      contract.registerPurchase(productId, unitPrice, quantity)
+      repository.save[PublisherContractId, PublisherContract](contract)
   }
 
 }

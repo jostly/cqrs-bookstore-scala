@@ -10,7 +10,7 @@ class GetProductsSpec extends AbstractAcceptanceTest with SomeProducts {
   feature("Getting products") {
     scenario("Getting existing product") {
       Given(s"a stored product with id ${productIds(0)}")
-      createProduct(products(0)).status should be (StatusCodes.OK)
+      createProduct(products(0)).head.status should be (StatusCodes.OK)
 
       When(s"the product with id ${productIds(0)} is fetched")
       val productOption = getProduct(productIds(0))
@@ -30,6 +30,7 @@ class GetProductsSpec extends AbstractAcceptanceTest with SomeProducts {
       p shouldBe 'failure
       p match {
         case Failure(e) =>
+          println(e)
           e.getMessage should include ("404 Not Found")
         case _ =>
       }
@@ -38,9 +39,7 @@ class GetProductsSpec extends AbstractAcceptanceTest with SomeProducts {
 
     scenario("Getting all products") {
       Given("some stored products")
-      createProduct(products(0)).status should be (StatusCodes.OK)
-      createProduct(products(1)).status should be (StatusCodes.OK)
-      createProduct(products(2)).status should be (StatusCodes.OK)
+      createProduct(products.take(3) : _*).map {_.status}.toSet should be (Set(StatusCodes.OK))
 
       When("all products are fetched")
       val allProducts = getProducts()

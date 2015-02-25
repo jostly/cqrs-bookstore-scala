@@ -13,7 +13,7 @@ class RegisterContractSpec extends AbstractAcceptanceTest with SomeContracts {
       val request = contracts(0)
 
       When("the request is sent to the service")
-      val status = registerContract(request).status
+      val status = registerContract(request).head.status
 
       Then("the service responds with OK")
       status should be (StatusCodes.OK)

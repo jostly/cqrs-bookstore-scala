@@ -29,7 +29,7 @@ object BookstoreBuild extends Build {
     base = file("order-context/publisher-contract-command")) dependsOn (eventbusContract)
 
   lazy val sagas = Project(id = "sagas",
-    base = file("order-context/sagas")) dependsOn (publisherContractCommand, orderCommand)
+    base = file("order-context/sagas")) dependsOn (publisherContractCommand, orderCommand, orderQuery)
 
   lazy val orderContext = Project(id = "order-context",
     base = file("order-context")) aggregate (orderApplication)

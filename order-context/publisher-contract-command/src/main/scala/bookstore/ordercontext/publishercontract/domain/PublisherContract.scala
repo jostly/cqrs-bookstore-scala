@@ -1,8 +1,9 @@
 package bookstore.ordercontext.publishercontract.domain
 
 import bookstore.domain.AggregateRoot
+import bookstore.ordercontext.order.ProductId
 import bookstore.ordercontext.publishercontract.PublisherContractId
-import bookstore.ordercontext.publishercontract.event.PublisherContractRegisteredEvent
+import bookstore.ordercontext.publishercontract.event.{PurchaseRegisteredEvent, PublisherContractRegisteredEvent}
 
 class PublisherContract extends AggregateRoot[PublisherContractId] {
 
@@ -20,6 +21,12 @@ class PublisherContract extends AggregateRoot[PublisherContractId] {
     applyChange(PublisherContractRegisteredEvent(publisherContractId, nextVersion(), now(), publisherName, feePercentage, limit))
   }
 
+  def registerPurchase(productId: ProductId, unitPrice: Long, quantity: Int) {
+    val purchaseAmount: Long = unitPrice * quantity
+    val fee = BigDecimal.decimal(feePercentage) / 100 * purchaseAmount
+    applyChange(PurchaseRegisteredEvent(id, nextVersion(), now(), productId, purchaseAmount, fee.toLong, (fee + accumulatedFee).toLong))
+  }
+
   private[this] def assertHasNotBeenRegistered() {
     if (id != null) throw new IllegalStateException("Contract has already been registered")
   }
@@ -32,6 +39,12 @@ class PublisherContract extends AggregateRoot[PublisherContractId] {
     feePercentage = event.feePercentage
     limit = event.limit
     accumulatedFee = 0L
+  }
+
+  def handleEvent(event: PurchaseRegisteredEvent) {
+    version = event.version
+    timestamp = event.timestamp
+    accumulatedFee = event.accumulatedFee
   }
 
 }

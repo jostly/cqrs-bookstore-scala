@@ -16,6 +16,7 @@ import bookstore.ordercontext.query.orderlist.OrderListDenormalizer
 import bookstore.ordercontext.resource.QueryResource
 import bookstore.ordercontext.query.service.QueryService
 import bookstore.ordercontext.resource.ContractCommandResource
+import bookstore.ordercontext.saga.PurchaseRegistrationSaga
 import com.typesafe.scalalogging.LazyLogging
 import org.json4s.{NoTypeHints, Formats}
 import org.json4s.native.Serialization
@@ -42,14 +43,15 @@ class OrderApplication(val system: ActorSystem, port: Int = 8080) extends LazyLo
 
   val queryService = new QueryService(orderProjectionRepository)
 
-  val service = system.actorOf(Props(classOf[OrderRoutingActor], domainEventStore, queryService), "order")
+  val saga = system.actorOf(Props(classOf[PurchaseRegistrationSaga], queryService))
 
+  val router = system.actorOf(Props(classOf[OrderRoutingActor], domainEventStore, queryService), "order")
   val binder = system.actorOf(Props(classOf[BindActor]))
-
+  
   implicit val timeout = Timeout(5.seconds)
 
   def start() = {
-    Await.result(binder ? Http.Bind(service, interface = "localhost", port = port), 5.seconds)
+    Await.result(binder ? Http.Bind(router, interface = "localhost", port = port), 5.seconds)
   }
 
   def close(): Unit = {

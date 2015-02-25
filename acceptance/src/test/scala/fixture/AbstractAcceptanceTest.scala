@@ -64,7 +64,8 @@ with BeforeAndAfterAll with BeforeAndAfterEach {
 
   def productContextUrl: String = host + ":8070/products"
 
-  def createProduct(product: ProductDto) = post(productContextUrl, product)
+  def createProduct(products: ProductDto*) =
+    products.map { post(productContextUrl, _) }
 
   def getProduct(id: String): Option[ProductDto] = get(productContextUrl + "/" + id, unmarshal[Option[ProductDto]])
 
@@ -93,7 +94,8 @@ with BeforeAndAfterAll with BeforeAndAfterEach {
 
   def contractCommandUrl: String = host + ":8090/service/publisher-contract-requests"
 
-  def registerContract(request: RegisterPublisherContractRequest) = post(contractCommandUrl, request)
+  def registerContract(requests: RegisterPublisherContractRequest*) =
+    requests.map { post(contractCommandUrl, _) }
 
 }
 
